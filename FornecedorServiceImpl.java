@@ -16,16 +16,33 @@ public class FornecedorServiceImpl implements FornecedorService{
 
     @Override
     public List<Fornecedor> findAll() {
-        return fornecedorRepository.listAll();
+        List<Fornecedor> listaFornecedor = fornecedorRepository.listAll();
+        if (listaFornecedor.isEmpty()) {
+            throw ValidationException.of("Lista de Fornecedores", "Nenhum fornecedor cadastrado");
+        } 
+        return listaFornecedor;
     }
 
     @Override
     public List<Fornecedor> findByCnpj(String cnpj) {
-        return fornecedorRepository.findByCnpj(cnpj);
+        if (cnpj == null || cnpj.isBlank()) {
+            throw ValidationException.of("cnpj", "CNPJ é obrigatório");
+        }
+
+        List<Fornecedor> listaFornecedor = fornecedorRepository.findByCnpj(cnpj);
+        if (listaFornecedor.isEmpty()) {
+            throw ValidationException.of("cnpj", "Nenhum fornecedor encontrado para o CNPJ informado");
+        }
+
+        return listaFornecedor;
     }
 
     @Override
     public Fornecedor findById(Long id) {
+        if (id == null || id <= 0) {
+            throw ValidationException.of("id", "id inválido");
+        }
+
         Fornecedor fornecedor = fornecedorRepository.findById(id);
         if (fornecedor == null) throw ValidationException.of("id", "Fornecedor não encontrado");
         return fornecedor;
@@ -34,6 +51,10 @@ public class FornecedorServiceImpl implements FornecedorService{
     @Override
     @Transactional
     public Fornecedor create(FornecedorDTO dto) {
+        if (dto == null || dto.cnpj() == null || dto.cnpj().isBlank()) {
+            throw ValidationException.of("cnpj", "CNPJ é obrigatório");
+        }
+
         Fornecedor fornecedor = new Fornecedor();
         fornecedor.setCnpj(dto.cnpj());
 
@@ -45,17 +66,34 @@ public class FornecedorServiceImpl implements FornecedorService{
     @Override
     @Transactional
     public void update(Long id, FornecedorDTO dto) {
+        if (id == null || id <= 0) {
+            throw ValidationException.of("id", "id inválido");
+        }
+
         Fornecedor fornecedor = fornecedorRepository.findById(id);
-        if (fornecedor == null) throw ValidationException.of("id", "Fornecedor não encontrado");
-        
+        if (fornecedor == null) {
+            throw ValidationException.of("id", "Fornecedor não encontrado");
+        }
+
+        if (dto == null || dto.cnpj() == null || dto.cnpj().isBlank()) {
+            throw ValidationException.of("cnpj", "CNPJ é obrigatório");
+        }
+
         fornecedor.setCnpj(dto.cnpj());
     }
 
     @Override
     @Transactional
     public void delete(Long id) {
+        if (id == null || id <= 0) {
+            throw ValidationException.of("id", "id inválido");
+        }
+
         Fornecedor fornecedor = fornecedorRepository.findById(id);
-        if (fornecedor == null) throw ValidationException.of("id", "Fornecedor não encontrado");
+        if (fornecedor == null) {
+            throw ValidationException.of("id", "Fornecedor não encontrado");
+        }
+
         fornecedorRepository.delete(fornecedor);
     }
     
