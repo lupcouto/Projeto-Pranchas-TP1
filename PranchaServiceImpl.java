@@ -32,33 +32,63 @@ public class PranchaServiceImpl implements PranchaService {
 
     @Override
     public List<Prancha> findAll() {
-        return repository.listAll();
+        List<Prancha> listaPranchas = repository.listAll();
+        if (listaPranchas.isEmpty()) {
+            throw ValidationException.of("Lista de Pranchas", "Nenhuma prancha cadastrada");
+        }
+
+        return listaPranchas;
     }
 
     @Override
     public List<Prancha> findByTipoPrancha(TipoPrancha tipoPrancha) {
-        return repository.findByTipoPrancha(tipoPrancha);
+        if (tipoPrancha == null) {
+            throw ValidationException.of("tipoPrancha", "TipoPrancha é obrigatório");
+        }
+
+        List<Prancha> listaPranchas = repository.findByTipoPrancha(tipoPrancha);
+        if (listaPranchas.isEmpty()) {
+            throw ValidationException.of("tipoPrancha", "Nenhuma prancha encontrada para o tipo informado");
+        }
+
+        return listaPranchas;
     }
 
     @Override
     public Prancha findById(Long id) {
+        if (id == null || id <= 0) {
+            throw ValidationException.of("id", "id inválido");
+        }
+
         Prancha prancha = repository.findById(id);
-        if (prancha == null) throw ValidationException.of("id", "Prancha não encontrada");
+        if (prancha == null) {
+            throw ValidationException.of("id", "Prancha não encontrada");
+        }
+
         return prancha;
     }
 
     @Override
     @Transactional
     public Prancha create(PranchaDTO dto) {
+        if (dto == null) {
+            throw ValidationException.of("dto", "Dados da prancha são obrigatórios");
+        }
 
         Modelo modelo = modeloRepository.findById(dto.idModelo());
-        if (modelo == null) throw ValidationException.of("id", "Modelo não encontrado");
+        if (modelo == null) {
+            throw ValidationException.of("idModelo", "Modelo não encontrado");
+        }
 
         Quilha quilha = quilhaRepository.findById(dto.idQuilha());
-        if (quilha == null) throw ValidationException.of("id", "Quilha não encontrada");
+        if (quilha == null) {
+            throw ValidationException.of("idQuilha", "Quilha não encontrada");
+        }
 
         Fornecedor fornecedor = fornecedorRepository.findById(dto.idFornecedor());
-        if (fornecedor == null) throw ValidationException.of("id", "Fornecedor não encontrado");
+        if (fornecedor == null) {
+            throw ValidationException.of("idFornecedor", "Fornecedor não encontrado");
+        }
 
         Prancha prancha = new Prancha();
         prancha.setTamanho(dto.tamanho());
@@ -79,17 +109,32 @@ public class PranchaServiceImpl implements PranchaService {
     @Override
     @Transactional
     public void update(Long id, PranchaDTO dto) {
+        if (id == null || id <= 0) {
+            throw ValidationException.of("id", "id inválido");
+        }
+        if (dto == null) {
+            throw ValidationException.of("dto", "Dados da prancha são obrigatórios");
+        }
+
         Prancha prancha = repository.findById(id);
-        if (prancha == null) throw ValidationException.of("id", "Prancha não encontrada");
+        if (prancha == null) {
+            throw ValidationException.of("id", "Prancha não encontrada");
+        } 
         
         Modelo modelo = modeloRepository.findById(dto.idModelo());
-        if (modelo == null) throw ValidationException.of("id", "Modelo não encontrado");
+        if (modelo == null) {
+            throw ValidationException.of("idModelo", "Modelo não encontrado");
+        }
 
         Quilha quilha = quilhaRepository.findById(dto.idQuilha());
-        if (quilha == null) throw ValidationException.of("id", "Quilha não encontrada");
+        if (quilha == null) {
+            throw ValidationException.of("idQuilha", "Quilha não encontrada");
+        } 
 
         Fornecedor fornecedor = fornecedorRepository.findById(dto.idFornecedor());
-        if (fornecedor == null) throw ValidationException.of("id", "Fornecedor não encontrado");
+        if (fornecedor == null) {
+            throw ValidationException.of("idFornecedor", "Fornecedor não encontrado");
+        }
 
         prancha.setTamanho(dto.tamanho());
         prancha.setValor(dto.valor());
@@ -103,9 +148,17 @@ public class PranchaServiceImpl implements PranchaService {
     }
  
     @Override
+    @Transactional
     public void delete(Long id) {
+        if (id == null || id <= 0) {
+            throw ValidationException.of("id", "id inválido");
+        }
+
         Prancha prancha = repository.findById(id);
-        if (prancha == null) throw ValidationException.of("id", "Prancha não encontrada");
+        if (prancha == null) {
+            throw ValidationException.of("id", "Prancha não encontrada");
+        }
+
         repository.delete(prancha);
     }
     
